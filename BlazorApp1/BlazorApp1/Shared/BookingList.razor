@@ -1,0 +1,66 @@
+﻿@page "/bookings"
+
+<h3>Booking List</h3>
+
+<ul>
+    @foreach (var booking in bookings)
+    {
+        <li>
+            @booking.GuestName
+            <button @onclick="() => EditBooking(booking.Id)">Edit</button>
+            <button @onclick="() => DeleteBooking(booking.Id)">Delete</button>
+        </li>
+    }
+</ul>
+
+<h3>Create/Edit Booking</h3>
+
+<form>
+    <label for="roomNumber">Room Number:</label>
+    <input id="roomNumber" @bind="roomNumber" />
+
+    <label for="guestName">Guest Name:</label>
+    <input id="guestName" @bind="guestName" />
+
+    <button @onclick="CreateEditBooking">Submit</button>
+</form>
+
+@code {
+    private List<Booking> bookings;
+    private int roomNumber;
+    private string guestName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookings = await hotelBookingService.GetAllBookings();
+    }
+
+    private async Task CreateEditBooking()
+    {
+        await hotelBookingService.CreateEditBooking(0, roomNumber, guestName);
+        bookings = await hotelBookingService.GetAllBookings();
+        ResetForm();
+    }
+
+    private async Task EditBooking(int id)
+    {
+        var booking = await hotelBookingService.GetBooking(id);
+        if (booking != null)
+        {
+            roomNumber = booking.RoomNumber;
+            guestName = booking.GuestName;
+        }
+    }
+
+    private async Task DeleteBooking(int id)
+    {
+        await hotelBookingService.DeleteBooking(id);
+        bookings = await hotelBookingService.GetAllBookings();
+    }
+
+    private void ResetForm()
+    {
+        roomNumber = 0;
+        guestName = string.Empty;
+    }
+}

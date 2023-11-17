@@ -1,0 +1,108 @@
+﻿<!-- HotelBooking.razor -->
+@page "/hotel-booking"
+@using BlazorApp1.Shared
+@inject IHotelBookingService HotelBookingService
+
+<h3>Hotel Booking Page</h3>
+
+<!-- Form for Create/Edit -->
+<form>
+    <label for="roomId">Room ID:</label>
+    <input id="roomId" @bind="roomId" />
+
+    <label for="roomNumber">Room Number:</label>
+    <input id="roomNumber" @bind="roomNumber" />
+
+    <label for="guestName">Guest Name:</label>
+    <input id="guestName" @bind="guestName" />
+
+    <button @onclick="CreateEditBooking">Create/Edit</button>
+</form>
+
+<!-- Form for Get -->
+<form>
+    <label for="getBookingId">Booking ID:</label>
+    <input id="getBookingId" @bind="getBookingId" />
+
+    <button @onclick="GetBooking">Get</button>
+</form>
+
+<!-- Form for Delete -->
+<form>
+    <label for="deleteBookingId">Booking ID:</label>
+    <input id="deleteBookingId" @bind="deleteBookingId" />
+
+    <button @onclick="DeleteBooking">Delete</button>
+</form>
+
+<!-- Button for GetAll -->
+<button @onclick="GetAllBookings">Get All Bookings</button>
+
+<!-- Display Results -->
+@if (result != null)
+{
+    <div>
+        <h4>Result:</h4>
+        <p>@result</p>
+    </div>
+}
+
+@code {
+    private int roomId;
+    private int roomNumber;
+    private string guestName;
+
+    private int getBookingId;
+    private int deleteBookingId;
+
+    private string result;
+
+    private async Task CreateEditBooking()
+    {
+        result = "ASDASDASDSAD";
+        await HotelBookingService.CreateEditBooking(roomId, roomNumber, guestName);
+        result = "Booking created/edited successfully.";
+        ClearFields();
+    }
+
+    private async Task GetBooking()
+    {
+        var booking = await HotelBookingService.GetBooking(getBookingId);
+        if (booking != null)
+        {
+            result = $"Booking ID: {booking.Id}, Room Number: {booking.RoomNumber}, Guest Name: {booking.GuestName}";
+        }
+        else
+        {
+            result = "Booking not found.";
+        }
+    }
+
+    private async Task DeleteBooking()
+    {
+        await HotelBookingService.DeleteBooking(deleteBookingId);
+        result = "Booking deleted successfully.";
+    }
+
+    private async Task GetAllBookings()
+    {
+        var bookings = await HotelBookingService.GetAllBookings();
+        if (bookings != null && bookings.Any())
+        {
+            result = "All Bookings:\n" + string.Join("\n", bookings.Select(b => $"ID: {b.Id}, Room Number: {b.RoomNumber}, Guest Name: {b.GuestName}"));
+        }
+        else
+        {
+            result = "No bookings found.";
+        }
+    }
+
+    private void ClearFields()
+    {
+        roomId = 0;
+        roomNumber = 0;
+        guestName = string.Empty;
+        getBookingId = 0;
+        deleteBookingId = 0;
+    }
+}
